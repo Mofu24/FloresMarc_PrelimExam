@@ -1,0 +1,56 @@
+---
+- name: Install Python3 and Pip3
+  hosts: Manage_Nodes
+  become: true
+  tasks:
+    - name: Install Python3
+      apt:
+        name: python3
+        state: latest
+
+    - name: Install Pip3
+      apt:
+        name: python3-pip
+        state: latest
+
+    - name: Set Pip3 as default pip
+      alternatives:
+        name: pip
+        path: /usr/bin/pip3
+
+    - name: Set Python3 as default python
+      alternatives:
+        name: python
+        path: /usr/bin/python3
+
+- name: Install Java OpenJDK
+  hosts: Manage_Nodes
+  become: true
+  tasks:
+    - name: Install OpenJDK
+      apt:
+        name: openjdk-11-jdk
+        state: latest
+
+- name: Create Motd with variable from config.yaml file
+  hosts: Manage_Nodes
+  become: true
+  vars_files:
+    - config.yaml
+  tasks:
+    - name: Create Motd file with variable text or default text if not defined in config.yaml file
+      template:
+        src: motd.j2
+        dest: /etc/motd
+
+- name: Create User with variable from config.yaml file
+  hosts: Manage_Nodes
+  become: true
+  vars_files:
+    - config.yaml
+  tasks:
+    - name: Create User with variable username from config.yaml file or default username if not defined in config.yaml file
+      user:
+        name: "{{ username | default('your_username') }}"
+        state: present
+
